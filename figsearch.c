@@ -175,8 +175,85 @@ fprintf(stdout,"%d %d %d %d",  row_number_start , column_number, row_number_end,
 
 }
 
-void find_square(){
+void find_square(struct Image *image){
+
+int row_number_start, row_number_end, column_number_start, column_number_end;
+int biggest1 = 0;
+int biggest2 = 0;
+int square_size;
+int counter;
+
+
+for (int row = 0; row < image->number_of_lines; row++)
+{
+    for (int column = 0; column < image->number_of_columns; column++)
+    {
+        int valid = 1;
+
+        if (image->colors[row][column] == 1)
+        {
+            valid = 1;
+            
+            for (square_size = 1; (square_size + column < image->number_of_columns) 
+                && (square_size + row < image->number_of_lines); square_size++)
+            {   
+
+
+                if (image->colors[row + square_size][column] == 1 &&
+                    image->colors[row][column + square_size] == 1)
+                {
+                    biggest1++;
+                }
+
+                if (image->colors[row + square_size][column] == 0 ||
+                    image->colors[row][column+ square_size] == 0)
+                {
+                    break;
+                }
+                
+            }
+            
+
+          
+
+            for (counter = 0; counter < square_size; counter++)
+            {
+                if (image->colors[row + square_size][column + counter] == 0 ||
+                    image->colors[row + counter ][column + square_size] == 0)
+                {
+                    valid = 0;
+                    break;
+                }
+                
+            }
+
+              if ((biggest1 > biggest2) && (valid == 1)){
+
+                biggest2 = biggest1;
+                row_number_start = row;
+                column_number_start = column;    
+                row_number_end = row + square_size;
+                column_number_end =  column + square_size;
+                }
+            biggest1 = 0;
+
+
+
+        }
+        
+
+
+    }
     
+}
+
+if (biggest2 != 0)
+{
+    fprintf(stdout, "%d %d %d %d", row_number_start, column_number_start,
+    row_number_end, column_number_end);
+} else fprintf(stdout, "No square found.");
+
+
 }
 
 void use_function(struct Image *image, char *function){
@@ -188,6 +265,10 @@ if (strcmp(function, "hline")==0)
 if (strcmp(function, "vline")==0)
 {
    find_vline(image);
+}
+if (strcmp(function, "square")==0)
+{
+   find_square(image);
 }
 
 }
