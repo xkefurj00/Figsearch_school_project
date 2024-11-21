@@ -194,9 +194,9 @@ void find_square(struct Image *image){
 
 int row_number_start, row_number_end, column_number_start, column_number_end;
 int square_size = 0;
-int largest_square_size = 0;
+int largest_square_size = -1;
 int counter;
-int valid;
+//int valid;
 
 for (int row = 0; row < image->number_of_lines; row++)
 {
@@ -208,12 +208,12 @@ for (int row = 0; row < image->number_of_lines; row++)
             for (square_size = 0; (square_size + column < image->number_of_columns) 
                 && (square_size + row < image->number_of_lines); square_size++)
             {  
-                 
+               //  valid = 1;
 
                 if (image->colors[row + square_size][column] == 1 &&
-                        image->colors[row][column + square_size] == 1)
-                    {
-                        valid = 1;
+                    image->colors[row][column + square_size] == 1)
+                {
+                        
                     for (counter = 0; counter <= square_size && (row + counter < image->number_of_lines) &&
                                     (column + counter < image->number_of_columns) ; counter++)
                     {
@@ -222,37 +222,37 @@ for (int row = 0; row < image->number_of_lines; row++)
                         || (image->colors[row + counter][column + square_size] == 0))
                         {   
                         
-                        valid = 0;
+                      //  valid = 0;
                         break;
                     
-                        }
+                        }else 
+                        if ((square_size > largest_square_size) && counter == square_size){
+
+                        largest_square_size = square_size;
+                        row_number_start = row;
+                        column_number_start = column;    
+                        row_number_end = row + largest_square_size;
+                        column_number_end =  column + largest_square_size;
+                    }
 
                     }
-                }else break;
-                
+                }else{
+               // valid = 0;
+                break;
+                }
 
-               fprintf(stdout, "R:%d, CL:%d, S:%d, C:%d V:%d\n" , row, column, square_size, counter, valid);
+               
             }      
 
-                if ((square_size >largest_square_size)){
-
-                    largest_square_size = square_size;
-                    row_number_start = row;
-                    column_number_start = column;    
-                    row_number_end = row + largest_square_size;
-                    column_number_end =  column + largest_square_size;
-                }
-    
-
-        
-        
+          //  fprintf(stdout, "R:%d, CL:%d, S:%d, C:%d V:%d\n" , row, column, square_size, counter, valid);
+                
 
         }
     }
     
 }
 
-if (largest_square_size > 0)
+if (largest_square_size > -1)
 {
     fprintf(stdout, "%d %d %d %d\n", row_number_start, column_number_start,
     row_number_end, column_number_end);
