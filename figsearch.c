@@ -117,8 +117,14 @@ for (int row = 0; row < image->number_of_lines; row++)
                 {
                     longest2 = longest1;
                     row_number = row;
-                    column_number_start = column - longest2 + 1;
+                    if (column == longest2){
+                    column_number_start = column - longest2;
+                    column_number_end = column - 1;
+                    }
+                    else{
+                    column_number_start = column - longest2 +1;
                     column_number_end = column;
+                    }
                 }
             longest1 = 0;
         } 
@@ -158,8 +164,17 @@ for (int column = 0; column < image->number_of_columns; column++)
                 {
                     longest2 = longest1;
                     column_number = column;
+                    if (row == longest2)
+                    {
+                        row_number_start = row - longest2;
+                        row_number_end = row - 1;
+                    }else{
                     row_number_start = row - longest2 + 1;
                     row_number_end = row;
+                    }
+                    
+                    
+                    
                 }
             longest1 = 0;
         } 
@@ -178,78 +193,69 @@ fprintf(stdout,"%d %d %d %d",  row_number_start , column_number, row_number_end,
 void find_square(struct Image *image){
 
 int row_number_start, row_number_end, column_number_start, column_number_end;
-int biggest1 = 0;
-int biggest2 = 0;
-int square_size;
+int square_size = 0;
+int largest_square_size = 0;
 int counter;
-
+int valid;
 
 for (int row = 0; row < image->number_of_lines; row++)
 {
     for (int column = 0; column < image->number_of_columns; column++)
     {
-        int valid = 1;
+       
 
         if (image->colors[row][column] == 1)
         {
-            valid = 1;
-            
-            for (square_size = 1; (square_size + column < image->number_of_columns) 
-                && (square_size + row < image->number_of_lines); square_size++)
-            {   
+            valid = 1 ;
 
+            for (square_size = 0; (square_size + column < image->number_of_columns) 
+                && (square_size + row < image->number_of_lines); square_size++)
+            {  
+                
+
+                for (counter = 0; counter <= square_size && (row + counter < image->number_of_lines) &&
+                (column + counter < image->number_of_columns) ; counter++)
+                {   
 
                 if (image->colors[row + square_size][column] == 1 &&
-                    image->colors[row][column + square_size] == 1)
-                {
-                    biggest1++;
+                        image->colors[row][column + square_size] == 1)
+                    {
+                        if ((image->colors[row + square_size][column + counter] == 0) 
+                        || (image->colors[row + counter][column + square_size] == 0))
+                        {   
+                        
+                        valid = 0;
+                        break;
+                    
+                        }
+
+                    } else valid = 0;
+        
                 }
 
-                if (image->colors[row + square_size][column] == 0 ||
-                    image->colors[row][column+ square_size] == 0)
-                {
-                    break;
+             //   fprintf(stdout, "R:%d, CL:%d, S:%d, C:%d V:%d\n" , row, column, square_size, counter, valid);
+                 
+                if ((square_size >largest_square_size)){
+
+                    largest_square_size = square_size;
+                    row_number_start = row;
+                    column_number_start = column;    
+                    row_number_end = row + largest_square_size-1;
+                    column_number_end =  column + largest_square_size-1;
                 }
-                
-            }
-            
-
-          
-
-            for (counter = 0; counter < square_size; counter++)
-            {
-                if (image->colors[row + square_size][column + counter] == 0 ||
-                    image->colors[row + counter ][column + square_size] == 0)
-                {
-                    valid = 0;
-                    break;
-                }
-                
-            }
-
-              if ((biggest1 > biggest2) && (valid == 1)){
-
-                biggest2 = biggest1;
-                row_number_start = row;
-                column_number_start = column;    
-                row_number_end = row + square_size;
-                column_number_end =  column + square_size;
-                }
-            biggest1 = 0;
-
-
+               if(valid ==0) break;
 
         }
         
 
-
+        }
     }
     
 }
 
-if (biggest2 != 0)
+if (largest_square_size > 0)
 {
-    fprintf(stdout, "%d %d %d %d", row_number_start, column_number_start,
+    fprintf(stdout, "%d %d %d %d\n", row_number_start, column_number_start,
     row_number_end, column_number_end);
 } else fprintf(stdout, "No square found.");
 
