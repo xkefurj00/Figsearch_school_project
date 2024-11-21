@@ -202,24 +202,22 @@ for (int row = 0; row < image->number_of_lines; row++)
 {
     for (int column = 0; column < image->number_of_columns; column++)
     {
-       
 
         if (image->colors[row][column] == 1)
         {
-            valid = 1 ;
-
             for (square_size = 0; (square_size + column < image->number_of_columns) 
                 && (square_size + row < image->number_of_lines); square_size++)
             {  
-                
-
-                for (counter = 0; counter <= square_size && (row + counter < image->number_of_lines) &&
-                (column + counter < image->number_of_columns) ; counter++)
-                {   
+                 
 
                 if (image->colors[row + square_size][column] == 1 &&
                         image->colors[row][column + square_size] == 1)
                     {
+                        valid = 1;
+                    for (counter = 0; counter <= square_size && (row + counter < image->number_of_lines) &&
+                                    (column + counter < image->number_of_columns) ; counter++)
+                    {
+
                         if ((image->colors[row + square_size][column + counter] == 0) 
                         || (image->colors[row + counter][column + square_size] == 0))
                         {   
@@ -229,23 +227,24 @@ for (int row = 0; row < image->number_of_lines; row++)
                     
                         }
 
-                    } else valid = 0;
-        
-                }
+                    }
+                }else break;
+                
 
-             //   fprintf(stdout, "R:%d, CL:%d, S:%d, C:%d V:%d\n" , row, column, square_size, counter, valid);
-                 
+               fprintf(stdout, "R:%d, CL:%d, S:%d, C:%d V:%d\n" , row, column, square_size, counter, valid);
+            }      
+
                 if ((square_size >largest_square_size)){
 
                     largest_square_size = square_size;
                     row_number_start = row;
                     column_number_start = column;    
-                    row_number_end = row + largest_square_size-1;
-                    column_number_end =  column + largest_square_size-1;
+                    row_number_end = row + largest_square_size;
+                    column_number_end =  column + largest_square_size;
                 }
-               if(valid ==0) break;
+    
 
-        }
+        
         
 
         }
