@@ -8,7 +8,7 @@ struct Image
 {
    int number_of_lines;  // variable that stores number of lines
    int number_of_columns; // variable that stores number of columns
-   int **colors; // field of bitmap colors
+   char **colors; // field of bitmap colors
 };
 
 
@@ -21,7 +21,7 @@ Return 0 when succesful
 */
 int bitmap_ctor(struct Image *image){
 
-image->colors = (int**)malloc(image->number_of_lines*sizeof(int*));
+image->colors = (char**)malloc(image->number_of_lines*sizeof(char*));
 // Allocation of memory for rows
 
 if (image->colors==NULL){
@@ -33,7 +33,7 @@ if (image->colors==NULL){
 
 for (int row = 0; row < image->number_of_lines; row++)
 {
-    image->colors[row] = (int*)malloc(image->number_of_columns*sizeof(int));
+    image->colors[row] = (char*)malloc(image->number_of_columns*sizeof(char));
 
     if (image->colors[row]==NULL){
 
@@ -70,9 +70,55 @@ for (int row = 0; row < image->number_of_lines; row++)
 }
 
 
+int test_image(struct Image *image, int row, int column){
+
+int is_valid = 1;
+
+if (image->number_of_columns <=0 || image->number_of_lines <= 0 )
+{
+   is_valid = 0;
+}// check if size of image is corect
 
 
 
+if ((image->colors[row][column] != '1') && (image->colors[row][column] != '0'))
+{
+    is_valid = 0;    
+}// Check if matrix only contains 0 or 1
+
+
+if(!is_valid)
+{
+  fprintf(stdout,"Invalid \n");
+}
+
+return is_valid;
+
+
+}
+
+
+void validate_image(struct Image *image){
+
+
+for (int row = 0; row < image->number_of_lines; row++)
+{
+    for (int column = 0; column < image->number_of_columns; column++)
+    {
+        if (!test_image(image, row, column))
+        {
+            return;
+        }
+         
+    }
+    
+}
+
+
+fprintf(stdout, "Valid\n");
+
+
+}
 
 
 /*
@@ -82,23 +128,42 @@ Then all numbers in image file
 */
 int load_file(struct Image *image, FILE *bitmap){
 
+int row = 0;
+int column = 0;
+char test_char;
 fscanf(bitmap,"%d %d", &image->number_of_lines, &image->number_of_columns);
 // Loads first two numbers which are size of image
+
+if (image->number_of_columns <=0 || image->number_of_lines <= 0 )
+{
+   fprintf(stdout, "Invalid\n");
+   return 1;
+}// check if size of image is corect
+
+
+
 
 if (bitmap_ctor(image) !=0){
     return 1;
 }// Calling function bitmap_ctor, return 1 if fail
 
 
-for (int row = 0; row < image->number_of_lines; row++){
+for (row = 0; row < image->number_of_lines; row++){
 
-    for (int column = 0; column < image->number_of_columns; column++)
+    for (column = 0; column < image->number_of_columns; column++)
     {
-        fscanf(bitmap,"%d", &image->colors[row][column]);
+        fscanf(bitmap, " %c", &image->colors[row][column]);
     }
     
 }
 
+
+
+if (fscanf(bitmap, " %c", &test_char) !=  EOF)
+{
+    fprintf(stdout, "Invalid\n");
+    return 1;
+}
 
 return 0;
 }
@@ -112,30 +177,7 @@ void print_help(){
 
 }
 
-int test(struct Image *image, int row, int column){
 
-int is_valid = 1;
-
-if (image->number_of_columns <=0 || image->number_of_lines <= 0 )
-{
-   is_valid = 0;
-}// check if size of image is corect
-
-
-
-if (image->colors[row][column] != 1 && image->colors[row][column] != 0)
-{
-    is_valid = 0;       
-}// Check if matrix only contains 0 or 1
-
-
-if(is_valid)
-{
-   fprintf(stdout,"Invalid \n");
-}else fprintf(stdout,"Valid \n");
-
-return is_valid;
-}
 
 void find_hline(struct Image *image){
 
@@ -150,12 +192,18 @@ for (int row = 0; row < image->number_of_lines; row++)
 {
     for (int column = 0; column < image->number_of_columns; column++)
     {
-        if (image->colors[row][column]==1)
+
+        if (!test_image(image, row, column))
+        {
+            return;
+        }
+
+        if (image->colors[row][column]=='1')
         {
             longest1++;
         }
 
-        if (image->colors[row][column]==0)
+        if (image->colors[row][column]=='0')
         {
             if (longest1 > longest2)
             {
@@ -183,14 +231,18 @@ for (int row = 0; row < image->number_of_lines; row++)
         
         
         
+        
+        
 
     }
 
 }
 
+if (longest2 > 0)
+{
 fprintf(stdout,"%d %d %d %d \n", row_number, column_number_start ,
 row_number, column_number_end);
-
+}else fprintf(stdout, "No horizontal line found.\n");
 }
 
 void find_vline(struct Image *image){
@@ -207,22 +259,27 @@ for (int column = 0; column < image->number_of_columns; column++)
 {
     for (int row = 0; row < image->number_of_lines; row++)
     {
-        if (image->colors[row][column] == 1)
+        if (!test_image(image, row, column))
+        {
+            return;
+        }
+
+        if (image->colors[row][column] == '1')
         {
             longest1++;
         }
 
-        if (image->colors[row][column]==0)
+        if (image->colors[row][column]=='0')
         {
-            if (longest1 > longest2)
+            if ((longest1 > longest2) || (longest1 == longest2 && row - longest2 < row_number_start))
             {
                 longest2 = longest1;
                 column_number = column;
                 row_number_start = row - longest2;
                 row_number_end = row - off_by_one;
-                  
-                   
-            }        
+            }
+
+
         longest1 = 0;
 
         } 
@@ -241,15 +298,16 @@ for (int column = 0; column < image->number_of_columns; column++)
         }
         
 
-        
-        
 
     }
 
 }
 
-fprintf(stdout,"%d %d %d %d \n",  row_number_start , column_number, row_number_end, column_number);
-
+if (longest2 > 0)
+{
+fprintf(stdout,"%d %d %d %d \n",  row_number_start , column_number,
+row_number_end, column_number);
+}else fprintf(stdout, "No vertical line found.\n");
 
 }
 
@@ -265,24 +323,29 @@ for (int row = 0; row < image->number_of_lines; row++)
 {
     for (int column = 0; column < image->number_of_columns; column++)
     {
+        if (!test_image(image, row, column))
+        {
+            return;
+        }
 
-        if (image->colors[row][column] == 1)
+        if (image->colors[row][column] == '1')
         {
             for (square_size = 0; (square_size + column < image->number_of_columns) 
                 && (square_size + row < image->number_of_lines); square_size++)
             {  
               
 
-                if (image->colors[row + square_size][column] == 1 &&
-                    image->colors[row][column + square_size] == 1)
+                if (image->colors[row + square_size][column] == '1' &&
+                    image->colors[row][column + square_size] == '1')
                 {
                         
-                    for (counter = 0; counter <= square_size && (row + counter < image->number_of_lines) &&
-                                    (column + counter < image->number_of_columns) ; counter++)
+                    for (counter = 0; counter <= square_size 
+                    && (row + counter < image->number_of_lines) 
+                    && (column + counter < image->number_of_columns) ; counter++)
                     {
 
-                        if ((image->colors[row + square_size][column + counter] == 0) 
-                        || (image->colors[row + counter][column + square_size] == 0))
+                        if ((image->colors[row + square_size][column + counter] == '0') 
+                        || (image->colors[row + counter][column + square_size] == '0'))
                         {   
                         
                       
@@ -326,19 +389,23 @@ if (largest_square_size > -1)
 
 void use_function(struct Image *image, char *function){
 
+
 if (strcmp(function, "hline")==0)
 {
    find_hline(image);
-}
+}else
 if (strcmp(function, "vline")==0)
 {
    find_vline(image);
-}
+}else
 if (strcmp(function, "square")==0)
 {
    find_square(image);
+}else
+if (strcmp(function, "test")==0)
+{
+   validate_image(image);
 }
-
 
 }
 
