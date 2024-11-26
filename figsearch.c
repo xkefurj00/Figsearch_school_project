@@ -70,13 +70,19 @@ for (int row = 0; row < image->number_of_lines; row++)
 }
 
 
+/*
+This fuction test file while program is running
+Returns 1 if file is valid
+Returns 0 if file is invalid and prints Invalid on stderr
+*/
+
 int test_image(struct Image *image, int row, int column){
 
-int is_valid = 1;
+int is_valid = 1; //expecting that file is valid
 
 if (image->number_of_columns <=0 || image->number_of_lines <= 0 )
 {
-   is_valid = 0;
+    is_valid = 0;
 }// check if size of image is corect
 
 
@@ -89,7 +95,7 @@ if ((image->colors[row][column] != '1') && (image->colors[row][column] != '0'))
 
 if(!is_valid)
 {
-  fprintf(stdout,"Invalid \n");
+    fprintf(stderr,"Invalid \n");
 }
 
 return is_valid;
@@ -97,9 +103,13 @@ return is_valid;
 
 }
 
+/*
+Uses funcion test_image() for testing whole file using two for loops
+Print Invalid when file is invalid on stderr
+Print Valid when file is valid on stdout
+*/
 
 void validate_image(struct Image *image){
-
 
 for (int row = 0; row < image->number_of_lines; row++)
 {
@@ -114,9 +124,7 @@ for (int row = 0; row < image->number_of_lines; row++)
     
 }
 
-
 fprintf(stdout, "Valid\n");
-
 
 }
 
@@ -125,6 +133,8 @@ fprintf(stdout, "Valid\n");
 Function for loading image from file
 Loads first 2 numbers which are sizes of matrix
 Then all numbers in image file
+Return 0 when loading was succesful
+Return 1 when loading fail
 */
 int load_file(struct Image *image, FILE *bitmap){
 
@@ -136,7 +146,7 @@ fscanf(bitmap,"%d %d", &image->number_of_lines, &image->number_of_columns);
 
 if (image->number_of_columns <=0 || image->number_of_lines <= 0 )
 {
-   fprintf(stdout, "Invalid\n");
+   fprintf(stderr, "Invalid\n");
    return 1;
 }// check if size of image is corect
 
@@ -155,13 +165,17 @@ for (row = 0; row < image->number_of_lines; row++){
         fscanf(bitmap, " %c", &image->colors[row][column]);
     }
     
-}
+}//Scan file and indexing each symbol
 
 
-
+/*
+Test if there no symbols left (matirix sizes are wrong)
+Print Invalid on stderr when so
+Retrun 1
+*/
 if (fscanf(bitmap, " %c", &test_char) !=  EOF)
 {
-    fprintf(stdout, "Invalid\n");
+    fprintf(stderr, "Invalid\n");
     return 1;
 }
 
@@ -172,7 +186,20 @@ return 0;
 
 void print_help(){
 
-
+fprintf(stdout,"The program starts in the following form:\n"
+"./fisearch --help\nor\n./fisearch \"argument\" FILE\n\n"
+"\"--help\" will cause the program to print a help for using program and exit.\n\n"
+"\"test\" only checks that the file given by the second argument of the program contains\n"
+"a proper definition of the bitmap image. If the image format matches the definition, \n"
+"it prints \"Valid\" (on stdout). Otherwise (e.g. illegal characters, missing data or \n"
+"wrong values) the program prints \"Invalid\" (on stderr). \n\n"
+"\"hline\" finds and prints the start and end coordinates of the first longest horizontal\n"
+"line in the given image.\n\n"
+"\"vline\" finds and prints the start and end coordinates of the first longest vertical\n"
+"segment in the given image.\n\n"
+"\"square\" finds and prints the start and end coordinates of the first largest square\n"
+"in the given image.\n\n"
+"FILE represents the name of the file containing the bitmap content.\n");
 
 
 }
@@ -242,7 +269,7 @@ if (longest2 > 0)
 {
 fprintf(stdout,"%d %d %d %d \n", row_number, column_number_start ,
 row_number, column_number_end);
-}else fprintf(stdout, "No horizontal line found.\n");
+}else fprintf(stdout, "Not found.\n");
 }
 
 void find_vline(struct Image *image){
@@ -307,7 +334,7 @@ if (longest2 > 0)
 {
 fprintf(stdout,"%d %d %d %d \n",  row_number_start , column_number,
 row_number_end, column_number);
-}else fprintf(stdout, "No vertical line found.\n");
+}else fprintf(stdout, "Not found.\n");
 
 }
 
@@ -382,7 +409,7 @@ if (largest_square_size > -1)
 {
     fprintf(stdout, "%d %d %d %d\n", row_number_start, column_number_start,
     row_number_end, column_number_end);
-} else fprintf(stdout, "No square found. \n");
+} else fprintf(stdout, "Not found.\n");
 
 
 }
@@ -405,7 +432,11 @@ if (strcmp(function, "square")==0)
 if (strcmp(function, "test")==0)
 {
    validate_image(image);
-}
+}else
+if (strcmp(function, "--help")==0)
+{
+   print_help();
+}else fprintf(stdout,"Wroung argument. Try: ./figsearch --help\n");
 
 }
 
@@ -416,31 +447,33 @@ int main(int argc, char *argv[]){
 struct Image image;
 
 
-FILE *bitmap=fopen(argv[2], "r");
-if (bitmap == NULL)
-{
-    fprintf(stderr, "Error: Cant open file \n");
-    return 1;
-}
-
-
-
-
-
-if (load_file(&image, bitmap) != 0)
-{
-    fclose(bitmap);
-    return 1;
-}
-
 if (argc==3)
 {
-    use_function(&image , argv[1]);    
-}
+    FILE *bitmap=fopen(argv[2], "r");
 
-fclose(bitmap);
+    if (load_file(&image, bitmap) != 0)
+    {
+        fclose(bitmap);
+        return 1;
+    }
 
-bitmap_dtor(&image);
+    if (bitmap == NULL)
+    {
+        fprintf(stderr, "Error: Cant open file.\n");
+        return 1;
+    }
+
+    use_function(&image , argv[1]);
+    fclose(bitmap);
+    bitmap_dtor(&image);
+}else
+use_function(&image , argv[1]);
+
+
+
+
+
+
 
 
 return 0;
