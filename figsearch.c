@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FILEPATH "obrazek.txt"
-
 struct Image
 {
    int number_of_lines;  // variable that stores number of lines
@@ -107,7 +105,7 @@ if ((image->colors[row][column] != '1') && (image->colors[row][column] != '0'))
 
 if(!is_valid)
 {
-    fprintf(stderr,"Invalid \n");
+    fprintf(stderr,"Invalid\n");
 }
 
 return is_valid;
@@ -284,7 +282,7 @@ if (longest2 > 0)
 {
 fprintf(stdout,"%d %d %d %d \n", row_number, column_number_start ,
 row_number, column_number_end);
-}else fprintf(stdout, "Not found.\n");
+}else fprintf(stdout, "Not found\n");
 
 
 }
@@ -368,7 +366,7 @@ if (longest2 > 0)
     fprintf(stdout,"%d %d %d %d \n",  row_number_start , column_number,
     row_number_end, column_number);
 }else 
-    fprintf(stdout, "Not found.\n");
+    fprintf(stdout, "Not found\n");
 
 }
 
@@ -447,12 +445,12 @@ for (int row = 0; row < image->number_of_lines; row++)
     
 }
 
-//if square eaxist print coordinates on stdout else print Not found
+//if square exist print coordinates on stdout else print Not found
 if (largest_square_size > -1)
 {
     fprintf(stdout, "%d %d %d %d\n", row_number_start, column_number_start,
     row_number_end, column_number_end);
-} else fprintf(stdout, "Not found.\n");
+} else fprintf(stdout, "Not found\n");
 
 
 }
