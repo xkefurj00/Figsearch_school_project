@@ -169,7 +169,7 @@ if (bitmap_ctor(image) !=0){
     return 1;
 }
 
-//Scan file and indexing each symbol
+//Scan file and indexing each symbol-
 for (row = 0; row < image->number_of_lines; row++){
 
     for (column = 0; column < image->number_of_columns; column++)
@@ -280,7 +280,7 @@ for (int row = 0; row < image->number_of_lines; row++)
 //print coordinates if line exists else print Not found
 if (longest2 > 0)
 {
-fprintf(stdout,"%d %d %d %d \n", row_number, column_number_start ,
+fprintf(stdout,"%d %d %d %d\n", row_number, column_number_start ,
 row_number, column_number_end);
 }else fprintf(stdout, "Not found\n");
 
@@ -363,7 +363,7 @@ for (int column = 0; column < image->number_of_columns; column++)
 //print coordinates if line exists else print Not found
 if (longest2 > 0)
 {
-    fprintf(stdout,"%d %d %d %d \n",  row_number_start , column_number,
+    fprintf(stdout,"%d %d %d %d\n",  row_number_start , column_number,
     row_number_end, column_number);
 }else 
     fprintf(stdout, "Not found\n");
